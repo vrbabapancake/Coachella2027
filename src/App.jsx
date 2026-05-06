@@ -173,14 +173,15 @@ function Header({ view, setView }) {
   const isMobile = useIsMobile()
   return (
     <header style={{ background: 'var(--dusk)', color: '#fff', padding: '0 16px', position: 'sticky', top: 0, zIndex: 100 }}>
-      <div style={{ maxWidth: '760px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: isMobile ? '48px' : '54px' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: isMobile ? '14px' : '17px', letterSpacing: '-0.3px' }}>🌴 Coachella Predictor</span>
-          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', fontWeight: 300 }}>2027</span>
-        </div>
-        <nav style={{ display: 'flex', gap: '2px' }}>
-          {[['pick', '🎵 My Picks'], ['leaderboard', '🏆 Leaderboard']].map(([id, label]) => (
-            <button key={id} onClick={() => setView(id)} style={{ padding: isMobile ? '5px 8px' : '5px 12px', borderRadius: '8px', border: 'none', background: view === id ? 'rgba(255,255,255,0.12)' : 'transparent', color: view === id ? '#fff' : 'rgba(255,255,255,0.45)', fontSize: isMobile ? '11px' : '13px', cursor: 'pointer', fontWeight: 500, fontFamily: 'var(--font-body)', transition: 'all 0.15s' }}>{label}</button>
+      <div style={{ maxWidth: '760px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '48px' }}>
+        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: isMobile ? '13px' : '17px', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>
+          🌴 Coachella Predictor <span style={{ fontWeight: 300, opacity: 0.4, fontSize: '11px' }}>2027</span>
+        </span>
+        <nav style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
+          {[['pick', '🎵', 'My Picks'], ['leaderboard', '🏆', 'Leaderboard']].map(([id, emoji, label]) => (
+            <button key={id} onClick={() => setView(id)} style={{ padding: '5px 10px', borderRadius: '8px', border: 'none', background: view === id ? 'rgba(255,255,255,0.12)' : 'transparent', color: view === id ? '#fff' : 'rgba(255,255,255,0.45)', fontSize: '13px', cursor: 'pointer', fontWeight: 500, fontFamily: 'var(--font-body)', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>
+              {isMobile ? emoji : `${emoji} ${label}`}
+            </button>
           ))}
         </nav>
       </div>
