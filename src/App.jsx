@@ -60,6 +60,11 @@ export default function App() {
     setSheetStatus(ok ? 'done' : 'local-only')
   }
 
+  function handleLeaderboardReset() {
+    setEntries([])
+    localStorage.removeItem(ENTRIES_KEY)
+  }
+
   function handleReset() {
     setPicks([])
     setUserName('')
@@ -160,7 +165,7 @@ export default function App() {
         )}
       </main>
       <footer style={{ textAlign: 'center', padding: '32px 20px', color: 'var(--muted)', fontSize: '12px', borderTop: '1px solid var(--border)', marginTop: '40px' }}>Predictions stored locally in your browser · Scores revealed when the lineup drops</footer>
-      {showAdmin && <AdminScoring entries={entries} onClose={() => setShowAdmin(false)} />}
+      {showAdmin && <AdminScoring entries={entries} onClose={() => setShowAdmin(false)} onReset={handleLeaderboardReset} />}
     </div>
   )
 }

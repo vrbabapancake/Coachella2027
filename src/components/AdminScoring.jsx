@@ -4,13 +4,14 @@ import { submitScoresToSheet } from '../services/sheets.js'
 
 const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || 'coachella2027'
 
-export function AdminScoring({ entries, onClose }) {
+export function AdminScoring({ entries, onClose, onReset }) {
   const [unlocked, setUnlocked]         = useState(false)
   const [keyInput, setKeyInput]         = useState('')
   const [keyError, setKeyError]         = useState(false)
   const [lineupText, setLineupText]     = useState('')
   const [results, setResults]           = useState(null)
   const [syncStatus, setSyncStatus]     = useState(null)
+  const [confirmReset, setConfirmReset] = useState(false)
 
   function handleUnlock() {
     if (keyInput === ADMIN_KEY) {
@@ -88,11 +89,24 @@ export function AdminScoring({ entries, onClose }) {
                 resize: 'vertical', marginBottom: '12px', background: 'white',
               }}
             />
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button onClick={onClose} style={outlineBtn}>Cancel</button>
-              <button onClick={handleScore} disabled={!lineupText.trim()} style={{ ...solidBtn, opacity: lineupText.trim() ? 1 : 0.4 }}>
-                Calculate scores
-              </button>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between', alignItems: 'center' }}>
+              {!confirmReset ? (
+                <button onClick={() => setConfirmReset(true)} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '12px', cursor: 'pointer', padding: 0 }}>
+                  🗑 Reset leaderboard
+                </button>
+              ) : (
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', color: '#dc2626' }}>Are you sure?</span>
+                  <button onClick={() => { onReset(); onClose() }} style={{ ...solidBtn, background: '#dc2626', padding: '5px 12px', fontSize: '12px' }}>Yes, reset</button>
+                  <button onClick={() => setConfirmReset(false)} style={{ ...outlineBtn, padding: '5px 12px', fontSize: '12px' }}>Cancel</button>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={onClose} style={outlineBtn}>Cancel</button>
+                <button onClick={handleScore} disabled={!lineupText.trim()} style={{ ...solidBtn, opacity: lineupText.trim() ? 1 : 0.4 }}>
+                  Calculate scores
+                </button>
+              </div>
             </div>
           </>
         ) : (
