@@ -1,12 +1,6 @@
-import { ProbabilityBadge } from './ProbabilityBadge.jsx'
-
 const AVATAR_BASE = 'https://ui-avatars.com/api/?background=e8673a&color=fff&bold=true&name='
 
 function Entry({ entry, rank, onView }) {
-  const avgScore = entry.picks.length > 0
-    ? Math.round(entry.picks.reduce((s, p) => s + (p.probability || 0), 0) / entry.picks.length)
-    : 0
-
   return (
     <div style={{
       background:   'var(--card-bg)',
@@ -33,7 +27,6 @@ function Entry({ entry, rank, onView }) {
             {new Date(entry.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </span>
         </div>
-        <ProbabilityBadge score={avgScore} showLabel={false} />
         <button
           onClick={() => onView(entry)}
           style={{

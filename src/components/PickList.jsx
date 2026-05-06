@@ -5,7 +5,6 @@ import {
   SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable, arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { ProbabilityBadge } from './ProbabilityBadge.jsx'
 
 const AVATAR_BASE = 'https://ui-avatars.com/api/?background=e8673a&color=fff&bold=true&name='
 
@@ -23,10 +22,7 @@ function SortableItem({ artist, index, onRemove }) {
       <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '13px', color: index < 3 ? 'var(--sunset)' : 'var(--muted)', minWidth: '18px', textAlign: 'center' }}>{index + 1}</span>
       <span {...attributes} {...listeners} title="Drag to reorder" style={{ cursor: 'grab', color: 'var(--border)', fontSize: '18px', userSelect: 'none', lineHeight: 1, touchAction: 'none' }}>⠿</span>
       <img src={artist.image} alt={artist.name} style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, background: '#f0ece4' }} onError={e => { e.target.src = AVATAR_BASE + encodeURIComponent(artist.name) }} />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '2px' }}>{artist.name}</div>
-        <ProbabilityBadge score={artist.probability} showLabel={false} />
-      </div>
+      <div style={{ flex: 1, minWidth: 0, fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{artist.name}</div>
       <button onClick={() => onRemove(artist.id)} aria-label={`Remove ${artist.name}`} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '2px 4px', borderRadius: '6px', flexShrink: 0, transition: 'color 0.12s' }} onMouseEnter={e => e.currentTarget.style.color = '#dc2626'} onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}>×</button>
     </div>
   )

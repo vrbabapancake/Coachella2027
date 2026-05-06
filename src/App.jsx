@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { ArtistSearch }           from './components/ArtistSearch.jsx'
 import { PickList }               from './components/PickList.jsx'
 import { Leaderboard }            from './components/Leaderboard.jsx'
-import { ProbabilityBadge }       from './components/ProbabilityBadge.jsx'
 import { AdminScoring }           from './components/AdminScoring.jsx'
 import { getShareUrl, getSharedPicksFromUrl } from './utils/share.js'
 import { submitPicksToSheet }     from './services/sheets.js'
@@ -101,7 +100,6 @@ export default function App() {
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '13px', minWidth: '22px', color: i < 3 ? 'var(--sunset)' : 'var(--muted)' }}>{i + 1}</span>
                 <img src={artist.image} alt={artist.name} style={{ width: 38, height: 38, borderRadius: '50%', objectFit: 'cover' }} onError={e => { e.target.src = AVATAR_BASE + encodeURIComponent(artist.name) }} />
                 <div style={{ flex: 1, fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: '14px' }}>{artist.name}</div>
-                {artist.probability && <ProbabilityBadge score={artist.probability} />}
               </div>
             ))}
           </div>
@@ -140,7 +138,6 @@ export default function App() {
                   <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '13px', minWidth: '22px', color: i < 3 ? 'var(--sunset)' : 'var(--muted)' }}>{i + 1}</span>
                   <img src={artist.image} alt={artist.name} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} onError={e => { e.target.src = AVATAR_BASE + encodeURIComponent(artist.name) }} />
                   <span style={{ flex: 1, fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: '14px' }}>{artist.name}</span>
-                  <ProbabilityBadge score={artist.probability} showLabel={false} />
                 </div>
               ))}
             </div>
