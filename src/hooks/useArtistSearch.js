@@ -27,19 +27,17 @@ export function useArtistSearch() {
       setError(null)
       try {
         const res = await fetch(
-          `https://api.deezer.com/search/artist?q=${encodeURIComponent(query)}&limit=8`
+          `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=musicArtist&limit=8&country=us`
         )
         if (!res.ok) throw new Error('Search failed')
         const data = await res.json()
         setResults(
-          (data.data || [])
-            .filter(a => a.nb_fan > 0)
-            .map(artist => ({
-              id:    String(artist.id),
-              name:  artist.name,
-              image: artist.picture_medium,
-              nbFan: artist.nb_fan,
-            }))
+          (data.results || []).map(artist => ({
+            id:    String(artist.artistId),
+            name:  artist.artistName,
+            image: (artist.artworkUrl100 || '').replace('100x100', '200x200'),
+            nbFan: null,
+          }))
         )
       } catch (err) {
         setError('Search failed — check your connection and try again.')
