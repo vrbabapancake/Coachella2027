@@ -1,55 +1,43 @@
-export const TIERS = {
-  headliner: { label: 'Headliner',                  points: 1 },
-  main:      { label: 'Main stage (non-headliner)', points: 2 },
-  sahara:    { label: 'Sahara / DJ set',             points: 3 },
-  small:     { label: 'Smaller stage',               points: 4 },
-  secret:    { label: 'Secret / surprise set',       points: 5 },
-}
+// Scoring rules:
+//   Correct pick:  +multiplier pts (1×=1, 2×=2, 3×=3)
+//   Wrong pick:    0 (1×), -1 (2×), -2 (3×)
+//   Reunion bonus: +2 if predicted AND confirmed — no penalty if wrong
+//   Debut bonus:   +2 if predicted AND confirmed — no penalty if wrong
+//   Reunion and Debut cannot be on the same pick
+//   Each can only be used once per entry
 
-export const BONUSES = {
-  reunion: { label: 'Reunion',         points: 3 },
-  debut:   { label: 'Coachella debut', points: 2 },
-}
-
-export const MULTIPLIER_PENALTIES = { 1: 0, 2: -1, 3: -2 }
-export const MAX_CONFIDENCE_PICKS = 3
-export const MAX_PICKS = 10
+export const WRONG_PENALTY = { 1: 0, 2: -1, 3: -2 }
+export const BONUS_POINTS  = 2
+export const MAX_PICKS     = 10
 
 export function scorePick(pick, lineupEntry) {
   const multiplier = pick.multiplier ?? 1
   const breakdown  = []
 
   if (!lineupEntry) {
-    const penalty = MULTIPLIER_PENALTIES[multiplier] ?? 0
-    breakdown.push(penalty < 0
-      ? `Not on lineup — ${multiplier}× penalty: ${penalty} pts`
-      : 'Not on lineup — 0 pts')
-    return { hit: false, basePoints: 0, bonusPoints: 0, subtotal: 0, multiplier, finalPoints: penalty, breakdown }
+    const penalty = WRONG_PENALTY[multiplier] ?? 0
+    breakdown.push(penalty < 0 ? `Not on lineup — ${multiplier}× penalty: ${penalty} pts` : 'Not on lineup — 0 pts')
+    return { hit: false, multiplierPoints: penalty, bonusPoints: 0, finalPoints: penalty, breakdown }
   }
 
-  const tierDef    = TIERS[lineupEntry.tier] ?? TIERS.main
-  const basePoints = tierDef.points
-  breakdown.push(`${tierDef.label} — ${basePoints} pt${basePoints !== 1 ? 's' : ''}`)
+  const multiplierPoints = multiplier
+  breakdown.push(`On lineup — ${multiplier}× = +${multiplierPoints} pt${multiplierPoints !== 1 ? 's' : ''}`)
 
   let bonusPoints = 0
   if (pick.predictedReunion && lineupEntry.isReunion) {
-    bonusPoints += BONUSES.reunion.points
-    breakdown.push(`Reunion bonus — +${BONUSES.reunion.points} pts`)
+    bonusPoints += BONUS_POINTS
+    breakdown.push(`Reunion confirmed — +${BONUS_POINTS} pts`)
   } else if (pick.predictedReunion) {
-    breakdown.push('Reunion predicted but did not happen')
+    breakdown.push('Reunion predicted but not confirmed — no bonus, no penalty')
   }
   if (pick.predictedDebut && lineupEntry.isDebut) {
-    bonusPoints += BONUSES.debut.points
-    breakdown.push(`Debut bonus — +${BONUSES.debut.points} pts`)
+    bonusPoints += BONUS_POINTS
+    breakdown.push(`Debut confirmed — +${BONUS_POINTS} pts`)
   } else if (pick.predictedDebut) {
-    breakdown.push('Debut predicted but artist has played before')
+    breakdown.push('Debut predicted but not confirmed — no bonus, no penalty')
   }
 
-  const subtotal    = basePoints + bonusPoints
-  const finalPoints = subtotal * multiplier
-  if (multiplier > 1) breakdown.push(`${multiplier}× multiplier → ${subtotal} × ${multiplier} = ${finalPoints} pts`)
-
-  return { hit: true, basePoints, bonusPoints, subtotal, multiplier, finalPoints, breakdown }
+  return { hit: true, multiplierPoints, bonusPoints, finalPoints: multiplierPoints + bonusPoints, breakdown }
 }
 
 export function scoreEntry(entry, confirmedLineup) {

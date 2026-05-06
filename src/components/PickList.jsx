@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors,
 } from '@dnd-kit/core'
@@ -5,22 +6,24 @@ import {
   SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable, arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useState } from 'react'
-import { MAX_CONFIDENCE_PICKS } from '../utils/scoring.js'
 
 const AVATAR_BASE = 'https://ui-avatars.com/api/?background=e8673a&color=fff&bold=true&name='
 
-const MULTIPLIER_INFO = {
-  1: 'Normal pick — no risk, no bonus.',
-  2: '2× boost — doubles your points if correct, but costs 1 pt if wrong.',
-  3: '3× boost — triples your points if correct, but costs 2 pts if wrong.',
+const MULTIPLIER_TITLES = {
+  1: '1× — Safe bet. +1 pt if correct, nothing lost if wrong.',
+  2: '2× — Bold call. +2 pts if correct, -1 pt if wrong.',
+  3: '3× — All in. +3 pts if correct, -2 pts if wrong.',
 }
 
-function SortableItem({ artist, index, onRemove, onUpdate, multiplierCount }) {
+function SortableItem({ artist, index, onRemove, onUpdate, reunionUsed, debutUsed }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: artist.id })
-  const [showInfo, setShowInfo]  = useState(false)
-  const multiplier               = artist.multiplier ?? 1
-  const canUpMultiplier          = multiplier === 1 && multiplierCount < MAX_CONFIDENCE_PICKS
+  const [showInfo, setShowInfo] = useState(false)
+  const multiplier = artist.multiplier ?? 1
+  const hasReunion = !!artist.predictedReunion
+  const hasDebut   = !!artist.predictedDebut
+
+  const reunionDisabled = !hasReunion && (reunionUsed || hasDebut)
+  const debutDisabled   = !hasDebut   && (debutUsed   || hasReunion)
 
   return (
     <div ref={setNodeRef} style={{
@@ -44,48 +47,46 @@ function SortableItem({ artist, index, onRemove, onUpdate, multiplierCount }) {
       <div style={{ padding: '0 10px 8px 10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '10px', color: 'var(--muted)' }}>Confidence:</span>
-          {[1, 2, 3].map(m => {
-            const active   = multiplier === m
-            const disabled = !active && m > 1 && !canUpMultiplier
-            return (
-              <button key={m} title={MULTIPLIER_INFO[m]} onClick={() => !disabled && onUpdate(artist.id, { multiplier: m })} style={{
-                fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px',
-                border: active ? '1.5px solid var(--sunset)' : '1.5px solid var(--border)',
-                background: active ? '#fff7f4' : 'transparent',
-                color: active ? 'var(--sunset)' : disabled ? 'var(--border)' : 'var(--muted)',
-                cursor: disabled ? 'default' : 'pointer',
-              }}>{m}×</button>
-            )
-          })}
+          {[1, 2, 3].map(m => (
+            <button key={m} title={MULTIPLIER_TITLES[m]} onClick={() => onUpdate(artist.id, { multiplier: m })} style={{
+              fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px',
+              border: multiplier === m ? '1.5px solid var(--sunset)' : '1.5px solid var(--border)',
+              background: multiplier === m ? '#fff7f4' : 'transparent',
+              color: multiplier === m ? 'var(--sunset)' : 'var(--muted)',
+              cursor: 'pointer',
+            }}>{m}×</button>
+          ))}
           <button onClick={() => setShowInfo(v => !v)} style={{ fontSize: '11px', padding: '2px 6px', borderRadius: '6px', border: '1.5px solid var(--border)', background: showInfo ? 'var(--sand)' : 'transparent', color: 'var(--muted)', cursor: 'pointer', lineHeight: 1 }}>?</button>
+
           <div style={{ width: '1px', height: '14px', background: 'var(--border)', margin: '0 2px' }} />
-          {[
-            ['predictedReunion', '🔄 Reunion', 'Predict this artist is returning after 5+ years away. +3 pts if correct.'],
-            ['predictedDebut',   '✨ Debut',   'Predict this is their first-ever Coachella appearance. +2 pts if correct.'],
-          ].map(([field, label, tip]) => {
-            const active = !!artist[field]
-            return (
-              <button key={field} title={tip} onClick={() => onUpdate(artist.id, { [field]: !active })} style={{
-                fontSize: '11px', padding: '2px 8px', borderRadius: '6px',
-                border: active ? '1.5px solid var(--mauve)' : '1.5px solid var(--border)',
-                background: active ? '#f5eeff' : 'transparent',
-                color: active ? 'var(--mauve)' : 'var(--muted)',
-                cursor: 'pointer',
-              }}>{label}</button>
-            )
-          })}
+
+          <button
+            title="Predict this artist is returning after 5+ years away. +2 bonus pts if correct, no penalty if wrong. One use only."
+            disabled={reunionDisabled}
+            onClick={() => !reunionDisabled && onUpdate(artist.id, { predictedReunion: !hasReunion })}
+            style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', border: hasReunion ? '1.5px solid var(--mauve)' : '1.5px solid var(--border)', background: hasReunion ? '#f5eeff' : 'transparent', color: hasReunion ? 'var(--mauve)' : reunionDisabled ? 'var(--border)' : 'var(--muted)', cursor: reunionDisabled ? 'default' : 'pointer' }}
+          >🔄 Reunion</button>
+
+          <button
+            title="Predict this is their first-ever Coachella appearance. +2 bonus pts if correct, no penalty if wrong. One use only."
+            disabled={debutDisabled}
+            onClick={() => !debutDisabled && onUpdate(artist.id, { predictedDebut: !hasDebut })}
+            style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', border: hasDebut ? '1.5px solid var(--mauve)' : '1.5px solid var(--border)', background: hasDebut ? '#f5eeff' : 'transparent', color: hasDebut ? 'var(--mauve)' : debutDisabled ? 'var(--border)' : 'var(--muted)', cursor: debutDisabled ? 'default' : 'pointer' }}
+          >✨ Debut</button>
         </div>
+
         {showInfo && (
-          <div style={{ marginTop: '6px', padding: '8px 10px', background: 'var(--sand)', borderRadius: '8px', fontSize: '11px', color: 'var(--muted)', lineHeight: 1.6 }}>
-            <div style={{ marginBottom: '4px', fontWeight: 600, color: 'var(--dusk)' }}>Confidence</div>
-            <div><strong style={{ color: 'var(--dusk)' }}>1×</strong> — Normal pick. No risk, no bonus.</div>
-            <div><strong style={{ color: 'var(--sunset)' }}>2×</strong> — Doubles points if correct. Costs 1 pt if wrong.</div>
-            <div><strong style={{ color: 'var(--sunset)' }}>3×</strong> — Triples points if correct. Costs 2 pts if wrong.</div>
-            <div style={{ marginTop: '4px' }}>Max {MAX_CONFIDENCE_PICKS} boosted picks total.</div>
-            <div style={{ margin: '8px 0 4px', fontWeight: 600, color: 'var(--dusk)' }}>Bonuses</div>
-            <div><strong style={{ color: 'var(--mauve)' }}>🔄 Reunion</strong> — +3 pts if the artist returns after 5+ years away.</div>
-            <div><strong style={{ color: 'var(--mauve)' }}>✨ Debut</strong> — +2 pts if it's their first-ever Coachella appearance.</div>
-            <div style={{ marginTop: '4px' }}>Bonuses only count if you predicted them AND they actually happen.</div>
+          <div style={{ marginTop: '6px', padding: '8px 10px', background: 'var(--sand)', borderRadius: '8px', fontSize: '11px', color: 'var(--muted)', lineHeight: 1.7 }}>
+            <div style={{ fontWeight: 600, color: 'var(--dusk)', marginBottom: '2px' }}>Confidence</div>
+            <div><strong style={{ color: 'var(--dusk)' }}>1×</strong> — Safe bet. +1 pt if correct, nothing lost if wrong.</div>
+            <div><strong style={{ color: 'var(--sunset)' }}>2×</strong> — Bold call. +2 pts if correct, -1 pt if wrong.</div>
+            <div><strong style={{ color: 'var(--sunset)' }}>3×</strong> — All in. +3 pts if correct, -2 pts if wrong.</div>
+            <div style={{ marginTop: '2px', fontStyle: 'italic' }}>You can boost as many picks as you want — but wrong calls will cost you.</div>
+
+            <div style={{ fontWeight: 600, color: 'var(--dusk)', margin: '8px 0 2px' }}>Bonuses</div>
+            <div><strong style={{ color: 'var(--mauve)' }}>🔄 Reunion</strong> — Think they're making a comeback after 5+ years? +2 pts if you're right, no penalty if wrong. <em>One use only.</em></div>
+            <div style={{ marginTop: '4px' }}><strong style={{ color: 'var(--mauve)' }}>✨ Debut</strong> — Calling their first-ever Coachella? +2 pts if you're right, no penalty if wrong. <em>One use only.</em></div>
+            <div style={{ marginTop: '4px', fontStyle: 'italic' }}>Reunion and Debut can't be on the same pick. Bonus points stack with your multiplier — e.g. 3× + Reunion correct = 3 + 2 = 5 pts.</div>
           </div>
         )}
       </div>
@@ -95,7 +96,9 @@ function SortableItem({ artist, index, onRemove, onUpdate, multiplierCount }) {
 
 export function PickList({ picks, onChange, onSubmit, userName, onUserNameChange }) {
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }))
-  const multiplierCount = picks.filter(p => (p.multiplier ?? 1) > 1).length
+
+  const reunionUsed = picks.some(p => p.predictedReunion)
+  const debutUsed   = picks.some(p => p.predictedDebut)
 
   function handleDragEnd({ active, over }) {
     if (!over || active.id === over.id) return
@@ -115,12 +118,6 @@ export function PickList({ picks, onChange, onSubmit, userName, onUserNameChange
         <span style={{ fontSize: '12px', fontWeight: 500, color: picks.length >= 10 ? 'var(--palm)' : 'var(--muted)' }}>{picks.length}/10 {picks.length >= 10 ? '✓ Full' : ''}</span>
       </div>
 
-      {multiplierCount > 0 && (
-        <p style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '8px' }}>
-          {multiplierCount}/{MAX_CONFIDENCE_PICKS} confidence boosts used
-        </p>
-      )}
-
       {picks.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '28px 16px', color: 'var(--muted)', fontSize: '13px', border: '2px dashed var(--border)', borderRadius: 'var(--radius)', lineHeight: 1.6 }}>
           <div style={{ fontSize: '24px', marginBottom: '6px' }}>🎶</div>
@@ -130,10 +127,12 @@ export function PickList({ picks, onChange, onSubmit, userName, onUserNameChange
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={picks.map(p => p.id)} strategy={verticalListSortingStrategy}>
             {picks.map((artist, i) => (
-              <SortableItem key={artist.id} artist={artist} index={i}
+              <SortableItem
+                key={artist.id} artist={artist} index={i}
                 onRemove={id => onChange(picks.filter(p => p.id !== id))}
                 onUpdate={updatePick}
-                multiplierCount={multiplierCount}
+                reunionUsed={reunionUsed && !artist.predictedReunion}
+                debutUsed={debutUsed && !artist.predictedDebut}
               />
             ))}
           </SortableContext>
