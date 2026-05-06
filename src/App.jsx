@@ -60,6 +60,15 @@ export default function App() {
     setSheetStatus(ok ? 'done' : 'local-only')
   }
 
+  function handleReset() {
+    setPicks([])
+    setUserName('')
+    setSubmitted(false)
+    setShareUrl('')
+    setSheetStatus(null)
+    localStorage.removeItem(MY_PICKS_KEY)
+  }
+
   function handleCopyLink() {
     navigator.clipboard.writeText(shareUrl).catch(() => {})
     setCopyDone(true)
@@ -132,6 +141,9 @@ export default function App() {
               <button onClick={handleCopyLink} style={outlineBtn}>{copyDone ? '✓ Copied!' : '📋 Copy share link'}</button>
               <button onClick={() => setView('leaderboard')} style={solidBtn}>View leaderboard →</button>
             </div>
+            <button onClick={handleReset} style={{ marginTop: '16px', background: 'none', border: 'none', color: 'var(--muted)', fontSize: '12px', cursor: 'pointer', textDecoration: 'underline' }}>
+              Reset and start over
+            </button>
           </div>
         )}
         {view === 'leaderboard' && (
