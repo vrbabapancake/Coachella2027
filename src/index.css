@@ -53,3 +53,9 @@ input[type="text"]::placeholder { color: var(--muted); }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  input[type="text"] { font-size: 16px; } /* prevent iOS zoom */
+  textarea { font-size: 16px; }
+}
