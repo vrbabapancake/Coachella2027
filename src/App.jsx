@@ -45,7 +45,7 @@ export default function App() {
   function handleAdd(artist) {
     if (picks.length >= 10 || submitted) return
     if (picks.find(p => p.id === artist.id)) return
-    setPicks(prev => [...prev, artist])
+    setPicks(prev => [...prev, { ...artist, multiplier: 1, predictedReunion: false, predictedDebut: false }])
   }
 
   async function handleSubmit() {
