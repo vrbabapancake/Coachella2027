@@ -5,14 +5,22 @@ import {
   SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable, arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useState } from 'react'
 import { MAX_CONFIDENCE_PICKS } from '../utils/scoring.js'
 
 const AVATAR_BASE = 'https://ui-avatars.com/api/?background=e8673a&color=fff&bold=true&name='
 
+const MULTIPLIER_INFO = {
+  1: 'Normal pick — no risk, no bonus.',
+  2: '2× boost — doubles your points if correct, but costs 1 pt if wrong.',
+  3: '3× boost — triples your points if correct, but costs 2 pts if wrong.',
+}
+
 function SortableItem({ artist, index, onRemove, onUpdate, multiplierCount }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: artist.id })
-  const multiplier       = artist.multiplier ?? 1
-  const canUpMultiplier  = multiplier === 1 && multiplierCount < MAX_CONFIDENCE_PICKS
+  const [showInfo, setShowInfo]  = useState(false)
+  const multiplier               = artist.multiplier ?? 1
+  const canUpMultiplier          = multiplier === 1 && multiplierCount < MAX_CONFIDENCE_PICKS
 
   return (
     <div ref={setNodeRef} style={{
@@ -33,34 +41,45 @@ function SortableItem({ artist, index, onRemove, onUpdate, multiplierCount }) {
       </div>
 
       {/* Controls row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0 10px 8px 10px', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '10px', color: 'var(--muted)', marginRight: '2px' }}>Confidence:</span>
-        {[1, 2, 3].map(m => {
-          const active    = multiplier === m
-          const disabled  = !active && m > 1 && !canUpMultiplier
-          return (
-            <button key={m} onClick={() => !disabled && onUpdate(artist.id, { multiplier: m })} style={{
-              fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px',
-              border: active ? '1.5px solid var(--sunset)' : '1.5px solid var(--border)',
-              background: active ? '#fff7f4' : 'transparent',
-              color: active ? 'var(--sunset)' : disabled ? 'var(--border)' : 'var(--muted)',
-              cursor: disabled ? 'default' : 'pointer',
-            }}>{m}×</button>
-          )
-        })}
-        <div style={{ width: '1px', height: '14px', background: 'var(--border)', margin: '0 2px' }} />
-        {[['predictedReunion', '🔄 Reunion'], ['predictedDebut', '✨ Debut']].map(([field, label]) => {
-          const active = !!artist[field]
-          return (
-            <button key={field} onClick={() => onUpdate(artist.id, { [field]: !active })} style={{
-              fontSize: '11px', padding: '2px 8px', borderRadius: '6px',
-              border: active ? '1.5px solid var(--mauve)' : '1.5px solid var(--border)',
-              background: active ? '#f5eeff' : 'transparent',
-              color: active ? 'var(--mauve)' : 'var(--muted)',
-              cursor: 'pointer',
-            }}>{label}</button>
-          )
-        })}
+      <div style={{ padding: '0 10px 8px 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '10px', color: 'var(--muted)' }}>Confidence:</span>
+          {[1, 2, 3].map(m => {
+            const active   = multiplier === m
+            const disabled = !active && m > 1 && !canUpMultiplier
+            return (
+              <button key={m} title={MULTIPLIER_INFO[m]} onClick={() => !disabled && onUpdate(artist.id, { multiplier: m })} style={{
+                fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px',
+                border: active ? '1.5px solid var(--sunset)' : '1.5px solid var(--border)',
+                background: active ? '#fff7f4' : 'transparent',
+                color: active ? 'var(--sunset)' : disabled ? 'var(--border)' : 'var(--muted)',
+                cursor: disabled ? 'default' : 'pointer',
+              }}>{m}×</button>
+            )
+          })}
+          <button onClick={() => setShowInfo(v => !v)} style={{ fontSize: '11px', padding: '2px 6px', borderRadius: '6px', border: '1.5px solid var(--border)', background: showInfo ? 'var(--sand)' : 'transparent', color: 'var(--muted)', cursor: 'pointer', lineHeight: 1 }}>?</button>
+          <div style={{ width: '1px', height: '14px', background: 'var(--border)', margin: '0 2px' }} />
+          {[['predictedReunion', '🔄 Reunion'], ['predictedDebut', '✨ Debut']].map(([field, label]) => {
+            const active = !!artist[field]
+            return (
+              <button key={field} onClick={() => onUpdate(artist.id, { [field]: !active })} style={{
+                fontSize: '11px', padding: '2px 8px', borderRadius: '6px',
+                border: active ? '1.5px solid var(--mauve)' : '1.5px solid var(--border)',
+                background: active ? '#f5eeff' : 'transparent',
+                color: active ? 'var(--mauve)' : 'var(--muted)',
+                cursor: 'pointer',
+              }}>{label}</button>
+            )
+          })}
+        </div>
+        {showInfo && (
+          <div style={{ marginTop: '6px', padding: '8px 10px', background: 'var(--sand)', borderRadius: '8px', fontSize: '11px', color: 'var(--muted)', lineHeight: 1.6 }}>
+            <div><strong style={{ color: 'var(--dusk)' }}>1×</strong> — Normal pick. No risk, no bonus.</div>
+            <div><strong style={{ color: 'var(--sunset)' }}>2×</strong> — Doubles points if correct. Costs 1 pt if wrong.</div>
+            <div><strong style={{ color: 'var(--sunset)' }}>3×</strong> — Triples points if correct. Costs 2 pts if wrong.</div>
+            <div style={{ marginTop: '4px' }}>Max {MAX_CONFIDENCE_PICKS} boosted picks total.</div>
+          </div>
+        )}
       </div>
     </div>
   )
