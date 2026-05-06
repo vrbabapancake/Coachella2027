@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { scoreAllEntries, TIERS } from '../utils/scoring.js'
+import { scoreAllEntries } from '../utils/scoring.js'
 import { submitScoresToSheet } from '../services/sheets.js'
 
 const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || 'coachella2027'
@@ -32,14 +32,14 @@ export function AdminScoring({ entries, onClose, onReset }) {
   function updateSetting(artistId, changes) {
     setSettings(prev => ({
       ...prev,
-      [artistId]: { onLineup: false, tier: 'main', isReunion: false, isDebut: false, ...prev[artistId], ...changes },
+      [artistId]: { onLineup: false, isReunion: false, isDebut: false, ...prev[artistId], ...changes },
     }))
   }
 
   function handleScore() {
     const confirmedLineup = {}
     for (const [artistId, s] of Object.entries(settings)) {
-      if (s.onLineup) confirmedLineup[artistId] = { tier: s.tier, isReunion: !!s.isReunion, isDebut: !!s.isDebut }
+      if (s.onLineup) confirmedLineup[artistId] = { isReunion: !!s.isReunion, isDebut: !!s.isDebut }
     }
     setResults(scoreAllEntries(entries, confirmedLineup))
     setSyncStatus(null)
@@ -102,11 +102,6 @@ export function AdminScoring({ entries, onClose, onReset }) {
                         </div>
                         {on && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', paddingLeft: '42px' }}>
-                            <select value={s.tier || 'main'} onChange={e => updateSetting(artist.id, { tier: e.target.value })} style={{ fontSize: '12px', padding: '3px 8px', borderRadius: '6px', border: '1.5px solid var(--border)', background: 'white', cursor: 'pointer' }}>
-                              {Object.entries(TIERS).map(([key, { label, points }]) => (
-                                <option key={key} value={key}>{label} ({points} pt{points !== 1 ? 's' : ''})</option>
-                              ))}
-                            </select>
                             {[['isReunion', '🔄 Reunion'], ['isDebut', '✨ Debut']].map(([field, label]) => (
                               <button key={field} onClick={() => updateSetting(artist.id, { [field]: !s[field] })} style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '6px', border: `1.5px solid ${s[field] ? 'var(--mauve)' : 'var(--border)'}`, background: s[field] ? '#f5eeff' : 'transparent', color: s[field] ? 'var(--mauve)' : 'var(--muted)', cursor: 'pointer' }}>{label}</button>
                             ))}
