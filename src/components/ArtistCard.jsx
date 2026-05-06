@@ -1,7 +1,7 @@
 import { calcProbability } from '../utils/probability.js'
 import { ProbabilityBadge }  from './ProbabilityBadge.jsx'
 
-const AVATAK_BASE = 'https://ui-avatars.com/api/?background=e8673a&color=fff&bold=true&name='
+const AVATAR_BASE = 'https://ui-avatars.com/api/?background=e8673a&color=fff&bold=true&name='
 
 export function ArtistCard({ artist, onAdd, added, disabled }) {
   const probability = calcProbability(artist)

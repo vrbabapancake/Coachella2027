@@ -65,7 +65,7 @@ function Entry({ entry, rank, onView }) {
             borderRadius: '999px',
             border:       '1px solid var(--border)',
           }}>
-            <img src={artist.image} alt="" style={{ width: 14, height: 14, borderRadius: '50%', objectFit: 'cover' }} onError={e => { e.target.src = AVATAK_BASE + encodeURIComponent(artist.name) }} />
+            <img src={artist.image} alt="" style={{ width: 14, height: 14, borderRadius: '50%', objectFit: 'cover' }} onError={e => { e.target.src = AVATAR_BASE + encodeURIComponent(artist.name) }} />
             {artist.name}
           </span>
         ))}

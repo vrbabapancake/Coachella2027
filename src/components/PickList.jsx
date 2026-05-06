@@ -7,7 +7,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { ProbabilityBadge } from './ProbabilityBadge.jsx'
 
-const AVATAK_BASE = 'https://ui-avatars.com/api/?background=e8673a&color=fff&bold=true&name='
+const AVATAR_BASE = 'https://ui-avatars.com/api/?background=e8673a&color=fff&bold=true&name='
 
 function SortableItem({ artist, index, onRemove }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: artist.id })
