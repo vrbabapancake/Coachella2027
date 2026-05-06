@@ -89,7 +89,7 @@ export default function App() {
   if (view === 'shared' && viewingList) {
     return (
       <div style={{ minHeight: '100vh', fontFamily: 'var(--font-body)' }}>
-        <Header view={view} setView={setView} />
+        <Header view={view} setView={setView} submitted={submitted} />
         <main style={{ maxWidth: '560px', margin: '0 auto', padding: '28px 20px' }}>
           <button onClick={() => { setView('leaderboard'); window.location.hash = '' }} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '13px', marginBottom: '20px', padding: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>← Back to leaderboard</button>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '20px', marginBottom: '4px' }}>{viewingList.userName}'s picks</h2>
@@ -110,7 +110,7 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: 'var(--font-body)' }}>
-      <Header view={view} setView={setView} />
+      <Header view={view} setView={setView} submitted={submitted} />
       <main style={{ maxWidth: '760px', margin: '0 auto', padding: isMobile ? '16px 14px' : '28px 20px' }}>
         {view === 'pick' && !submitted && (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '24px' }}>
@@ -169,8 +169,10 @@ export default function App() {
   )
 }
 
-function Header({ view, setView }) {
+function Header({ view, setView, submitted }) {
   const isMobile = useIsMobile()
+  const [showLockTip, setShowLockTip] = useState(false)
+
   return (
     <header style={{ background: 'var(--dusk)', color: '#fff', padding: '0 16px', position: 'sticky', top: 0, zIndex: 100 }}>
       <div style={{ maxWidth: '760px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '48px' }}>
@@ -178,11 +180,24 @@ function Header({ view, setView }) {
           🌴 Coachella Predictor <span style={{ fontWeight: 300, opacity: 0.4, fontSize: '11px' }}>2027</span>
         </span>
         <nav style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
-          {[['pick', '🎵', 'My Picks'], ['leaderboard', '🏆', 'Leaderboard']].map(([id, emoji, label]) => (
-            <button key={id} onClick={() => setView(id)} style={{ padding: '5px 10px', borderRadius: '8px', border: 'none', background: view === id ? 'rgba(255,255,255,0.12)' : 'transparent', color: view === id ? '#fff' : 'rgba(255,255,255,0.45)', fontSize: '13px', cursor: 'pointer', fontWeight: 500, fontFamily: 'var(--font-body)', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>
-              {isMobile ? emoji : `${emoji} ${label}`}
+          <button onClick={() => setView('pick')} style={{ padding: '5px 10px', borderRadius: '8px', border: 'none', background: view === 'pick' ? 'rgba(255,255,255,0.12)' : 'transparent', color: view === 'pick' ? '#fff' : 'rgba(255,255,255,0.45)', fontSize: '13px', cursor: 'pointer', fontWeight: 500, fontFamily: 'var(--font-body)', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>
+            {isMobile ? '🎵' : '🎵 My Picks'}
+          </button>
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => submitted ? setView('leaderboard') : setShowLockTip(v => !v)}
+              onBlur={() => setShowLockTip(false)}
+              style={{ padding: '5px 10px', borderRadius: '8px', border: 'none', background: view === 'leaderboard' ? 'rgba(255,255,255,0.12)' : 'transparent', color: submitted ? (view === 'leaderboard' ? '#fff' : 'rgba(255,255,255,0.45)') : 'rgba(255,255,255,0.25)', fontSize: '13px', cursor: submitted ? 'pointer' : 'default', fontWeight: 500, fontFamily: 'var(--font-body)', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+            >
+              {isMobile ? '🏆' : '🏆 Leaderboard'}{!submitted && ' 🔒'}
             </button>
-          ))}
+            {showLockTip && !submitted && (
+              <div style={{ position: 'absolute', top: '110%', right: 0, background: '#1a1310', color: '#fff', fontSize: '12px', padding: '8px 12px', borderRadius: '8px', whiteSpace: 'nowrap', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', zIndex: 200, pointerEvents: 'none' }}>
+                Lock in your picks first to see the leaderboard
+                <div style={{ position: 'absolute', top: '-5px', right: '16px', width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderBottom: '5px solid #1a1310' }} />
+              </div>
+            )}
+          </div>
         </nav>
       </div>
     </header>
