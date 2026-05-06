@@ -27,12 +27,12 @@ export async function submitPicksToSheet({ name, picks, shareUrl }) {
   }
 
   try {
-    const res = await fetch(ENDPOINT, {
+    await fetch(ENDPOINT, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(body),
     })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
     return { ok: true }
   } catch (err) {
     console.error('Sheets submission failed:', err)
@@ -58,12 +58,12 @@ export async function submitScoresToSheet(scores) {
   if (!ENDPOINT) return { ok: false, error: 'VITE_SHEETS_ENDPOINT not set' }
 
   try {
-    const res = await fetch(ENDPOINT, {
+    await fetch(ENDPOINT, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'score', scores }),
     })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
     return { ok: true }
   } catch (err) {
     return { ok: false, error: err.message }
