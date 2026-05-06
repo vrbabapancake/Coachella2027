@@ -29,7 +29,7 @@ export async function submitPicksToSheet({ name, picks, shareUrl }) {
   try {
     const res = await fetch(ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(body),
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -60,7 +60,7 @@ export async function submitScoresToSheet(scores) {
   try {
     const res = await fetch(ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'score', scores }),
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
