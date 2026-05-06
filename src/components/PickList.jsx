@@ -59,10 +59,13 @@ function SortableItem({ artist, index, onRemove, onUpdate, multiplierCount }) {
           })}
           <button onClick={() => setShowInfo(v => !v)} style={{ fontSize: '11px', padding: '2px 6px', borderRadius: '6px', border: '1.5px solid var(--border)', background: showInfo ? 'var(--sand)' : 'transparent', color: 'var(--muted)', cursor: 'pointer', lineHeight: 1 }}>?</button>
           <div style={{ width: '1px', height: '14px', background: 'var(--border)', margin: '0 2px' }} />
-          {[['predictedReunion', '🔄 Reunion'], ['predictedDebut', '✨ Debut']].map(([field, label]) => {
+          {[
+            ['predictedReunion', '🔄 Reunion', 'Predict this artist is returning after 5+ years away. +3 pts if correct.'],
+            ['predictedDebut',   '✨ Debut',   'Predict this is their first-ever Coachella appearance. +2 pts if correct.'],
+          ].map(([field, label, tip]) => {
             const active = !!artist[field]
             return (
-              <button key={field} onClick={() => onUpdate(artist.id, { [field]: !active })} style={{
+              <button key={field} title={tip} onClick={() => onUpdate(artist.id, { [field]: !active })} style={{
                 fontSize: '11px', padding: '2px 8px', borderRadius: '6px',
                 border: active ? '1.5px solid var(--mauve)' : '1.5px solid var(--border)',
                 background: active ? '#f5eeff' : 'transparent',
@@ -74,10 +77,15 @@ function SortableItem({ artist, index, onRemove, onUpdate, multiplierCount }) {
         </div>
         {showInfo && (
           <div style={{ marginTop: '6px', padding: '8px 10px', background: 'var(--sand)', borderRadius: '8px', fontSize: '11px', color: 'var(--muted)', lineHeight: 1.6 }}>
+            <div style={{ marginBottom: '4px', fontWeight: 600, color: 'var(--dusk)' }}>Confidence</div>
             <div><strong style={{ color: 'var(--dusk)' }}>1×</strong> — Normal pick. No risk, no bonus.</div>
             <div><strong style={{ color: 'var(--sunset)' }}>2×</strong> — Doubles points if correct. Costs 1 pt if wrong.</div>
             <div><strong style={{ color: 'var(--sunset)' }}>3×</strong> — Triples points if correct. Costs 2 pts if wrong.</div>
             <div style={{ marginTop: '4px' }}>Max {MAX_CONFIDENCE_PICKS} boosted picks total.</div>
+            <div style={{ margin: '8px 0 4px', fontWeight: 600, color: 'var(--dusk)' }}>Bonuses</div>
+            <div><strong style={{ color: 'var(--mauve)' }}>🔄 Reunion</strong> — +3 pts if the artist returns after 5+ years away.</div>
+            <div><strong style={{ color: 'var(--mauve)' }}>✨ Debut</strong> — +2 pts if it's their first-ever Coachella appearance.</div>
+            <div style={{ marginTop: '4px' }}>Bonuses only count if you predicted them AND they actually happen.</div>
           </div>
         )}
       </div>
