@@ -61,7 +61,7 @@ function SortableItem({ artist, index, onRemove, onUpdate, reunionUsed, debutUse
           <div style={{ width: '1px', height: '14px', background: 'var(--border)', margin: '0 2px' }} />
 
           <button
-            title="Predict this artist is returning after 5+ years away. +2 bonus pts if correct, no penalty if wrong. One use only."
+            title="Reunion — Pick a band you think will play Coachella again after 5 or more years. +2 pts if you're right, no penalty if wrong. One use only."
             disabled={reunionDisabled}
             onClick={() => !reunionDisabled && onUpdate(artist.id, { predictedReunion: !hasReunion })}
             style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', border: hasReunion ? '1.5px solid var(--mauve)' : '1.5px solid var(--border)', background: hasReunion ? '#f5eeff' : 'transparent', color: hasReunion ? 'var(--mauve)' : reunionDisabled ? 'var(--border)' : 'var(--muted)', cursor: reunionDisabled ? 'default' : 'pointer' }}
@@ -84,7 +84,7 @@ function SortableItem({ artist, index, onRemove, onUpdate, reunionUsed, debutUse
             <div style={{ marginTop: '2px', fontStyle: 'italic' }}>You can boost as many picks as you want — but wrong calls will cost you.</div>
 
             <div style={{ fontWeight: 600, color: 'var(--dusk)', margin: '8px 0 2px' }}>Bonuses</div>
-            <div><strong style={{ color: 'var(--mauve)' }}>🔄 Reunion</strong> — Think they're making a comeback after 5+ years? +2 pts if you're right, no penalty if wrong. <em>One use only.</em></div>
+            <div><strong style={{ color: 'var(--mauve)' }}>🔄 Reunion</strong> — Pick a band you think will play Coachella again after 5 or more years. +2 pts if you're right, no penalty if wrong. <em>One use only.</em></div>
             <div style={{ marginTop: '4px' }}><strong style={{ color: 'var(--mauve)' }}>✨ Debut</strong> — Calling their first-ever Coachella? +2 pts if you're right, no penalty if wrong. <em>One use only.</em></div>
             <div style={{ marginTop: '4px', fontStyle: 'italic' }}>Reunion and Debut can't be on the same pick. Bonus points stack with your multiplier — e.g. 3× + Reunion correct = 3 + 2 = 5 pts.</div>
           </div>
